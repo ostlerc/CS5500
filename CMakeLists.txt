@@ -59,14 +59,13 @@ find_package(TBB)
 include_directories(${TBB_INCLUDE_DIRS})
 link_directories(${TBB_LIBRARY_DIRS})
 
-
-add_library(common SHARED ${common_srcs})
+add_library(common STATIC ${common_srcs} ${TBB_LIBRARIES})
 
 add_executable(torus ${client_srcs})
 add_executable(torus_test ${test_srcs})
 
-target_link_libraries(torus common ${wxWidgets_LIBRARIES})
-target_link_libraries(torus_test common)
+target_link_libraries(torus common ${wxWidgets_LIBRARIES} ${TBB_LIBRARIES})
+target_link_libraries(torus_test common ${TBB_LIBRARIES})
 
 enable_testing()
 add_test(unit_tests torus_test)
