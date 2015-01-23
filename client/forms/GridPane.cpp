@@ -16,7 +16,7 @@ GridPane::GridPane(wxFrame* parent)
   : wxPanel(parent), grid(new Grid(GRID_TILES, GRID_TILES))
 {
     PerlinNoise p;
-    
+
     std::shared_ptr<matrix2d> noiseMap = p.createMatrix2D(grid->width, grid->height, 5);
   for (double x = 0; x < grid->width; x++)
   {
