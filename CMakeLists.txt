@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(TorusWorld)
 
-set(TBB_INSTALL_DIR "/Users/steveg/Projects/tbb/tbb43_20141204oss")
-
-
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/client
