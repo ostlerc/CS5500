@@ -1,5 +1,6 @@
 #include <iostream>
 #include "PerlinNoise.h"
+#include "tbb/tbb.h"
 
 PerlinNoise::PerlinNoise(uint seed)
 {
@@ -120,7 +121,10 @@ std::shared_ptr<matrix3d> PerlinNoise::createMatrix3D(int width, int height, int
         double z = (double)k/(double)depth;
         z = (z * 2) - 1.0;
         
-        (*matrix)[i][j][k] = this->turbulence3D(x, y, z, perlinDepth);
+          auto p =this->turbulence3D(x, y, z, perlinDepth);
+          std::cout << p << std::endl;
+          
+          (*matrix)[i][j][k] = p;
       }
     }    
   }
@@ -129,20 +133,52 @@ std::shared_ptr<matrix3d> PerlinNoise::createMatrix3D(int width, int height, int
 
 }
 
+std::mutex matrixMutex;
+#if 1
+void setOneCell2D(const PerlinNoise *perlin,std::shared_ptr<matrix2d> matrix, int i, int j, int width, int height, int perlinDepth) {
+    double x = (double)i/(double)width;
+    x = (x * 2) - 1.0;
+    
+    double y = (double)j/(double)height;
+    y = (y * 2) - 1.0;
+    
+    double noise = perlin->turbulence2D(x, y, perlinDepth);
+    {
+        std::lock_guard<std::mutex> locker(matrixMutex);
+        std::cout << noise << std::endl;
+        (*matrix)[i][j] = noise;
+    }
+    
+}
+#endif
+
 std::shared_ptr<matrix2d> PerlinNoise::createMatrix2D(int width, int height, int perlinDepth) const{
   auto matrix = std::make_shared<matrix2d>(width, std::vector<double>(height));
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution(-1.0,1.0);
+
 
   for (int i = 0; i < width; i++){
-    for (int j = 0; j < height; j++){
+      tbb::parallel_for(tbb::blocked_range<int>(0,height),
+                        [=](const tbb::blocked_range<int> &r) {
+                            for (int j = r.begin(); j != r.end(); j++)
+                                setOneCell2D(this, matrix, i, j, width, height, perlinDepth);
+
+                        });
+#if 0
       double x = (double)i/(double)width;
       x = (x * 2) - 1.0;
 
       double y = (double)j/(double)height;
       y = (y * 2) - 1.0;
+        
+        auto p = this->turbulence2D(x, y, perlinDepth);
+        std::cout <<p << std::endl;
 
-      (*matrix)[i][j] = this->turbulence2D(x, y, perlinDepth);
+        (*matrix)[i][j] = p;
+#endif
       
-    }    
+    
   }
 
   return matrix;
