@@ -22,6 +22,7 @@ include_directories(
 )
 
 add_definitions( -std=c++0x )
+add_definitions(-DUNICODE -D_UNICODE)
 
 set(EXTRA_COMPILE_FLAGS "-Wall -Wextra -Werror -Wno-missing-braces -g")
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${EXTRA_COMPILE_FLAGS})
@@ -38,7 +39,6 @@ set(client_srcs
   client/forms/canvas.h
   client/src/Grid.hpp
   client/src/Grid.cpp
-  include/wxwidget.h
 
 )
 source_group("client" FILES ${client_srcs})
@@ -119,7 +119,7 @@ find_package(TBB)
 include_directories(${TBB_INCLUDE_DIRS})
 link_directories(${TBB_LIBRARY_DIRS})
 
-add_library(common STATIC ${common_srcs} ${TBB_LIBRARIES})
+add_library(common STATIC ${common_srcs})
 
 # OpenGL
 find_package(OpenGL REQUIRED)
